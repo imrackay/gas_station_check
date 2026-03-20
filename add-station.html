@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เพิ่มปั๊มน้ำมันใหม่</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .add-station-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .add-station-container h2 {
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+    
+    #add-map {
+      height: 400px;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+    }
+    
+    .instruction {
+      background: #eff6ff;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #667eea;
+      text-decoration: none;
+    }
+    
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛢️ เพิ่มปั๊มน้ำมันใหม่</h1>
+  </header>
+  
+  <div class="add-station-container">
+    <a href="/" class="back-link">← กลับไปหน้าหลัก</a>
+    
+    <h2>ลงทะเบียนปั๊มน้ำมันใหม่</h2>
+    
+    <div class="instruction">
+      📍 <strong>วิธีใช้:</strong> คลิกบนแผนที่เพื่อเลือกตำแหน่งปั๊มของคุณ หรือกดปุ่ม "ใช้ตำแหน่งปัจจุบัน" เพื่อใช้ GPS
+    </div>
+    
+    <div id="add-map"></div>
+    
+    <form id="add-station-form">
+      <div class="form-group">
+        <label for="station-name-input">ชื่อปั๊ม: *</label>
+        <input type="text" id="station-name-input" required placeholder="เช่น ปั๊ม PTT หาดใหญ่">
+      </div>
+      
+      <div class="form-group">
+        <label for="station-address-input">ที่อยู่: *</label>
+        <input type="text" id="station-address-input" required placeholder="เช่น 123 ถ.เพชรเกษม ต.หาดใหญ่ อ.หาดใหญ่ จ.สงขลา">
+      </div>
+      
+      <div class="form-group">
+        <label for="latitude-input">ละติจูด (Latitude): *</label>
+        <input type="number" id="latitude-input" step="0.000001" required readonly>
+      </div>
+      
+      <div class="form-group">
+        <label for="longitude-input">ลองจิจูด (Longitude): *</label>
+        <input type="number" id="longitude-input" step="0.000001" required readonly>
+      </div>
+      
+      <div class="form-group">
+        <label for="capacity-input">ความจุถังเต็ม (ลิตร): *</label>
+        <input type="number" id="capacity-input" min="1000" required placeholder="เช่น 50000">
+      </div>
+      
+      <div class="form-group">
+        <label for="current-input">น้ำมันคงเหลือปัจจุบัน (ลิตร): *</label>
+        <input type="number" id="current-input" min="0" required placeholder="เช่น 45000">
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="useCurrentLocation()">📍 ใช้ตำแหน่งปัจจุบัน</button>
+        <button type="submit" class="btn btn-success">💾 บันทึกปั๊มใหม่</button>
+      </div>
+    </form>
+  </div>
+  
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/add-station.js"></script>
+</body>
+</html>

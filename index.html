@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ตรวจสอบสถานะน้ำมันปั๊ม</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>🛢️ ระบบตรวจสอบน้ำมันคงเหลือปั๊มน้ำมัน - จังหวัดตรัง</h1>
+      <p style="opacity: 0.9; margin-top: 0.5rem;">📍 อัพเดทข้อมูลได้เฉพาะคนที่อยู่ในบริเวณปั๊ม (ภายใน 100 เมตร) | ข้อมูลจาก OpenStreetMap</p>
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-label">ปั๊มทั้งหมด</span>
+          <span class="stat-value" id="total-stations">-</span>
+        </div>
+        <div class="stat-card available">
+          <span class="stat-label">มีน้ำมัน</span>
+          <span class="stat-value" id="available-stations">-</span>
+        </div>
+        <div class="stat-card low">
+          <span class="stat-label">น้ำมันน้อย</span>
+          <span class="stat-value" id="low-stations">-</span>
+        </div>
+        <div class="stat-card empty">
+          <span class="stat-label">หมดแล้ว</span>
+          <span class="stat-value" id="empty-stations">-</span>
+        </div>
+        <div class="stat-card" style="background: rgba(14, 165, 233, 0.3); cursor: pointer;" onclick="openAddStationModal()">
+          <span class="stat-label">เพิ่มปั๊มใหม่</span>
+          <span class="stat-value">➕</span>
+        </div>
+      </div>
+    </header>
+    
+    <div class="container">
+      <div id="map"></div>
+      <div id="station-list">
+        <h2>รายการปั๊มน้ำมัน</h2>
+        <div id="stations"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>อัพเดทสถานะน้ำมัน</h2>
+        <span class="close">&times;</span>
+      </div>
+      <form id="update-form">
+        <input type="hidden" id="station-id">
+        
+        <div class="location-verified">
+          <span id="distance-info"></span>
+        </div>
+        
+        <div class="form-group">
+          <label>ชื่อปั๊ม:</label>
+          <div id="station-name" class="form-value"></div>
+        </div>
+        
+        <div class="form-group">
+          <label>สถานะน้ำมันคงเหลือ:</label>
+          <div class="fuel-status-options">
+            <label class="status-option high">
+              <input type="radio" name="fuel_status" value="high" required>
+              <span>🟢 ปกติ</span>
+            </label>
+            <label class="status-option medium">
+              <input type="radio" name="fuel_status" value="medium" required>
+              <span>🟡 ปานกลาง</span>
+            </label>
+            <label class="status-option low">
+              <input type="radio" name="fuel_status" value="low" required>
+              <span>🟠 น้อย</span>
+            </label>
+            <label class="status-option empty">
+              <input type="radio" name="fuel_status" value="empty" required>
+              <span>🔴 หมด</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success">💾 บันทึก</button>
+          <button type="button" class="btn btn-secondary" id="cancel-btn">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-modal" class="modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2>เพิ่มปั๊มใหม่</h2>
+        <span class="close" onclick="closeAddStationModal()">&times;</span>
+      </div>
+      <form id="add-form">
+        <div class="location-verified" id="add-location-status">
+          <span id="add-distance-info">🗺️ คลิกบนแผนที่ด้านล่างเพื่อเลือกตำแหน่งปั๊ม</span>
+        </div>
+        
+        <div class="form-group">
+          <label for="add-name">ชื่อปั๊ม:</label>
+          <input type="text" id="add-name" placeholder="เช่น PTT ตรัง" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="add-address">ที่อยู่:</label>
+          <input type="text" id="add-address" placeholder="เช่น จ.ตรัง" required>
+        </div>
+        
+        <div class="form-group">
+          <label>ตำแหน่ง GPS:</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <input type="number" id="add-latitude" placeholder="Latitude" step="any" required readonly>
+            <input type="number" id="add-longitude" placeholder="Longitude" step="any" required readonly>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>แผนที่:</label>
+          <div id="add-map" style="height: 300px; border-radius: 8px; border: 2px solid #e5e7eb;"></div>
+          <small>🗺️ คลิกบนแผนที่เพื่อเลือกตำแหน่งปั๊ม หรือลากหมุดเพื่อย้าย</small>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success">💾 เพิ่มปั๊ม</button>
+          <button type="button" class="btn btn-secondary" onclick="closeAddStationModal()">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="/main.js"></script>
+</body>
+</html>
